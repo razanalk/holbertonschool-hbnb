@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
@@ -44,6 +45,8 @@ def seed_admin(app):
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    CORS(app)
 
     # Use Flask SECRET_KEY for JWT
     app.config["JWT_SECRET_KEY"] = app.config["SECRET_KEY"]
