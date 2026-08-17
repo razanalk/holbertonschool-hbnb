@@ -599,3 +599,9 @@ footer {
     }
 
 }
+    .error-message {
+    color: #b42318;
+    margin: 10px 0;
+    min-height: 1.2em;
+    
+} 
