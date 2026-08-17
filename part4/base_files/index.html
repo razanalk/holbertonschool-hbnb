@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Al-Mabit Al-Najdi - Places</title>
 
     <link rel="icon" href="images/icon.png">
@@ -11,74 +10,77 @@
 </head>
 
 <body>
-
-<header>
-
-    <a href="index.html" class="logo-container">
-        <img
-            src="images/logo.png"
-            alt="Al-Mabit Al-Najdi logo"
-            class="logo"
-        >
-    </a>
-
-    <nav>
-        <a href="index.html">Places</a>
-
-        <a href="login.html"
-           id="login-link"
-           class="login-button">
-            Login
+    <header>
+        <a href="index.html" class="logo-container">
+            <img
+                src="images/logo.png"
+                alt="Al-Mabit Al-Najdi logo"
+                class="logo"
+            >
         </a>
-    </nav>
 
-</header>
+        <nav>
+            <a href="index.html">Places</a>
+            <a href="login.html" id="login-link" class="login-button">Login</a>
+        </nav>
+    </header>
 
+    <main>
+        <h1>Al-Mabit Al-Najdi</h1>
 
-<main>
+        <p class="page-intro">
+            Discover traditional Najdi stays inspired by the heritage of Riyadh.
+        </p>
 
-    <h1>Al-Mabit Al-Najdi</h1>
+        <section class="filters">
+            <label for="price-filter">Max Price:</label>
 
-    <p class="page-intro">
-        Discover traditional Najdi stays inspired by the heritage of Riyadh.
-    </p>
+            <select id="price-filter">
+                <option value="all">All</option>
+                <option value="300">300 SAR</option>
+                <option value="450">450 SAR</option>
+                <option value="600">600 SAR</option>
+            </select>
+        </section>
 
+        <section id="places-list" class="places">
+            <article class="place-card">
+		<div class="najdi-icon"><span></span></div>	    
+                <h2>Najdi Heritage House</h2>
+                <p class="place-description">
+                    A traditional Najdi home in the heart of Riyadh.
+                </p>
+                <p class="place-price">300 SAR per night</p>
+                <a href="place.html" class="details-button">View Details</a>
+            </article>
 
-    <section class="filters">
+            <article class="place-card">
+		<div class="najdi-icon"><span></span></div>    
+                <h2>Riyadh Courtyard Stay</h2>
+                <p class="place-description">
+                    A peaceful stay with a private courtyard and local character.
+                </p>
+                <p class="place-price">450 SAR per night</p>
+                <a href="place2.html" class="details-button">View Details</a>
+            </article>
 
-        <label for="price-filter">Max Price:</label>
+            <article class="place-card">
+		<div class="najdi-icon"><span></span></div>    
+                <h2>Diriyah Desert Retreat</h2>
+                <p class="place-description">
+                    A relaxing desert-inspired retreat near historic Diriyah.
+                </p>
+                <p class="place-price">600 SAR per night</p>
+                <a href="place3.html" class="details-button">View Details</a>
+            </article>
+        </section>
+    </main>
 
-        <select id="price-filter">
-            <option value="10">10</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="all">All</option>
-        </select>
+    <footer>
+        <p>© 2026 Al-Mabit Al-Najdi. All rights reserved.</p>
+        <p class="designer-credit">Made by Razan</p>
+    </footer>
 
-    </section>
-
-
-    <section id="places-list" class="places">
-        <!-- Places will be populated dynamically using JavaScript -->
-    </section>
-
-</main>
-
-
-<footer>
-
-    <p>
-        © 2026 Al-Mabit Al-Najdi. All rights reserved.
-    </p>
-
-    <p class="designer-credit">
-        Made by Razan
-    </p>
-
-</footer>
-
-
-<script src="scripts.js"></script>
-
+    <script src="scripts.js"></script>
 </body>
 </html>
