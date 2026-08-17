@@ -24,7 +24,12 @@
 
     <nav>
         <a href="index.html">Places</a>
-        <a href="login.html" class="login-button">Login</a>
+
+        <a href="login.html"
+           id="login-link"
+           class="login-button">
+            Login
+        </a>
     </nav>
 
 </header>
@@ -41,99 +46,20 @@
 
     <section class="filters">
 
-        <label for="max-price">Max Price:</label>
+        <label for="price-filter">Max Price:</label>
 
-        <select id="max-price">
-
+        <select id="price-filter">
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
             <option value="all">All</option>
-            <option value="100">$100</option>
-            <option value="150">$150</option>
-            <option value="200">$200</option>
-            <option value="250">$250</option>
-
         </select>
 
     </section>
 
 
-    <section class="places">
-
-
-        <!-- Place 1 -->
-        <article class="place-card">
-
-            <div class="najdi-icon">
-                <span class="house-icon house-one">⌂</span>
-            </div>
-
-            <h3>Najdi Heritage Stay</h3>
-
-            <p class="price">
-                Price per night: $150
-            </p>
-
-            <p class="place-description">
-                A traditional Najdi chalet with a warm courtyard
-                and peaceful atmosphere.
-            </p>
-
-            <a href="place.html" class="details-button">
-                View Details
-            </a>
-
-        </article>
-
-
-        <!-- Place 2 -->
-        <article class="place-card">
-
-            <div class="najdi-icon">
-                <span class="house-icon house-two">⌂</span>
-            </div>
-
-            <h3>Riyadh Heritage Stay</h3>
-
-            <p class="price">
-                Price per night: $180
-            </p>
-
-            <p class="place-description">
-                A Riyadh-inspired stay combining Najdi
-                architecture with modern comfort.
-            </p>
-
-            <a href="place2.html" class="details-button">
-                View Details
-            </a>
-
-        </article>
-
-
-        <!-- Place 3 -->
-        <article class="place-card">
-
-            <div class="najdi-icon">
-                <span class="house-icon house-three">⌂</span>
-            </div>
-
-            <h3>Najdi Courtyard House</h3>
-
-            <p class="price">
-                Price per night: $200
-            </p>
-
-            <p class="place-description">
-                A charming courtyard house inspired by
-                traditional Najdi homes and design.
-            </p>
-
-            <a href="place3.html" class="details-button">
-                View Details
-            </a>
-
-        </article>
-
-
+    <section id="places-list" class="places">
+        <!-- Places will be populated dynamically using JavaScript -->
     </section>
 
 </main>
@@ -151,6 +77,8 @@
 
 </footer>
 
+
+<script src="scripts.js"></script>
 
 </body>
 </html>
