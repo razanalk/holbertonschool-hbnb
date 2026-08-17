@@ -69,15 +69,15 @@ place_update_model = api.model('PlaceUpdate', {
     ),
 })
 
-
 def place_summary(place):
     return {
         'id': place.id,
         'title': place.title,
+        'description': place.description,
+        'price': place.price,
         'latitude': place.latitude,
         'longitude': place.longitude,
     }
-
 
 def place_created(place):
     return {
