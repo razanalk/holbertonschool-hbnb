@@ -1,5 +1,8 @@
 const API_BASE_URL =
-    "https://web-5000-103-127.cod-eu-west-3.hbtn.io/api/v1";
+    `${window.location.protocol}//${window.location.host.replace(
+        "web-80-",
+        "web-5000-"
+    )}/api/v1`;
 
 /* =========================
    TASK 1: LOGIN
@@ -393,4 +396,93 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     fetchPlaceDetails(token, placeId);
+});
+
+/* =========================
+   TASK 4: ADD REVIEW
+   ========================= */
+
+async function submitReview(token, placeId, reviewText, rating) {
+    const response = await fetch(
+        `${API_BASE_URL}/reviews/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                text: reviewText,
+                rating: Number(rating),
+                place_id: placeId
+            })
+        }
+    );
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch (error) {
+        console.error("Review response error:", error);
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.error || data.message || "Failed to submit review"
+        );
+    }
+
+    return data;
+}
+
+/* Runs only on add_review.html */
+document.addEventListener("DOMContentLoaded", () => {
+    const reviewForm = document.getElementById("review-form");
+
+    if (!reviewForm) {
+        return;
+    }
+
+    const token = getCookie("token");
+    const placeId = getPlaceIdFromURL();
+    const reviewMessage = document.getElementById("review-message");
+
+    /* Redirects users who are not logged in */
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    /* Stops the form if it was opened without a selected place */
+    if (!placeId) {
+        reviewMessage.textContent =
+            "No place was selected for this review.";
+        reviewMessage.style.color = "#b42318";
+        return;
+    }
+
+    reviewForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const reviewText = document.getElementById("review").value.trim();
+        const rating = document.getElementById("rating").value;
+
+        reviewMessage.textContent = "";
+
+        try {
+            await submitReview(token, placeId, reviewText, rating);
+
+            reviewMessage.textContent =
+                "Review submitted successfully!";
+            reviewMessage.style.color = "#1f5a45";
+
+            reviewForm.reset();
+        } catch (error) {
+            console.error("Review submission error:", error);
+
+            reviewMessage.textContent = error.message;
+            reviewMessage.style.color = "#b42318";
+        }
+    });
 });
