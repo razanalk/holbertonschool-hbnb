@@ -208,3 +208,189 @@ document.addEventListener("DOMContentLoaded", () => {
         filterPlaces(event.target.value);
     });
 });
+
+/* =========================
+   TASK 3: PLACE DETAILS
+   ========================= */
+
+/* Gets the place ID from: place.html?id=PLACE_ID */
+function getPlaceIdFromURL() {
+    const queryParameters = new URLSearchParams(window.location.search);
+
+    return queryParameters.get("id");
+}
+
+/* Gets one place and its details from the API */
+async function fetchPlaceDetails(token, placeId) {
+    const placeDetails = document.getElementById("place-details");
+
+    try {
+        const headers = token
+            ? { Authorization: `Bearer ${token}` }
+            : {};
+
+        const response = await fetch(
+            `${API_BASE_URL}/places/${placeId}`,
+            {
+                method: "GET",
+                headers: headers
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to fetch place details");
+        }
+
+        const place = await response.json();
+
+        displayPlaceDetails(place);
+        displayReviews(place.reviews || []);
+    } catch (error) {
+        console.error("Place details error:", error);
+
+        if (placeDetails) {
+            placeDetails.innerHTML =
+                "<p>Unable to load place details.</p>";
+        }
+    }
+}
+
+/* Displays the selected place information */
+function displayPlaceDetails(place) {
+    const placeTitle = document.getElementById("place-title");
+    const placeIntro = document.getElementById("place-intro");
+    const placeDetails = document.getElementById("place-details");
+
+    if (!placeDetails) {
+        return;
+    }
+
+    const name = place.name || "Unnamed place";
+    const description =
+        place.description || "No description available.";
+    const price = Number(place.price) || 0;
+
+    let location = "Location not available";
+
+    if (place.location) {
+        location = place.location;
+    } else if (
+        place.latitude !== undefined &&
+        place.longitude !== undefined
+    ) {
+        location = `${place.latitude}, ${place.longitude}`;
+    }
+
+    const amenities = Array.isArray(place.amenities)
+        ? place.amenities
+        : [];
+
+    const amenitiesHTML = amenities.length > 0
+        ? amenities.map((amenity) => {
+            const amenityName = amenity.name || amenity;
+            return `<li>${amenityName}</li>`;
+        }).join("")
+        : "<li>No amenities available.</li>";
+
+    if (placeTitle) {
+        placeTitle.textContent = name;
+    }
+
+    if (placeIntro) {
+        placeIntro.textContent = description;
+    }
+
+    placeDetails.innerHTML = `
+        <h2>${name}</h2>
+
+        <p>
+            <strong>Price:</strong> $${price} per night
+        </p>
+
+        <p>
+            <strong>Location:</strong> ${location}
+        </p>
+
+        <p>
+            <strong>Description:</strong> ${description}
+        </p>
+
+        <h2>Amenities</h2>
+
+        <ul>
+            ${amenitiesHTML}
+        </ul>
+    `;
+}
+
+/* Displays all reviews for the selected place */
+function displayReviews(reviews) {
+    const reviewsList = document.getElementById("reviews-list");
+
+    if (!reviewsList) {
+        return;
+    }
+
+    reviewsList.innerHTML = "";
+
+    if (reviews.length === 0) {
+        reviewsList.innerHTML = "<p>No reviews yet.</p>";
+        return;
+    }
+
+    reviews.forEach((review) => {
+        const reviewCard = document.createElement("article");
+        reviewCard.className = "review-card";
+
+        const userName =
+            review.user_name ||
+            review.user ||
+            "Anonymous user";
+
+        const comment =
+            review.comment ||
+            review.text ||
+            "No comment provided.";
+
+        const rating = review.rating || "Not rated";
+
+        reviewCard.innerHTML = `
+            <p><strong>${userName}</strong></p>
+            <p>${comment}</p>
+            <p><strong>Rating:</strong> ${rating}/5</p>
+        `;
+
+        reviewsList.appendChild(reviewCard);
+    });
+}
+
+/* Runs only on place.html */
+document.addEventListener("DOMContentLoaded", () => {
+    const placeDetails = document.getElementById("place-details");
+
+    if (!placeDetails) {
+        return;
+    }
+
+    const placeId = getPlaceIdFromURL();
+    const token = getCookie("token");
+    const addReviewSection = document.getElementById("add-review");
+    const addReviewLink = document.getElementById("add-review-link");
+
+    if (!placeId) {
+        placeDetails.innerHTML =
+            "<p>No place was selected.</p>";
+        return;
+    }
+
+    if (addReviewSection) {
+        addReviewSection.style.display = token ? "block" : "none";
+    }
+
+    if (token && addReviewLink) {
+        addReviewLink.href =
+            `add_review.html?place_id=${encodeURIComponent(placeId)}`;
+    }
+
+    fetchPlaceDetails(token, placeId);
+});
