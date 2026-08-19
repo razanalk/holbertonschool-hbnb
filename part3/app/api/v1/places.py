@@ -4,7 +4,6 @@ from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
-# Define the models for related entities
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.Integer(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -21,12 +20,10 @@ review_model = api.model('PlaceReview', {
     'id': fields.Integer(description='Review ID'),
     'text': fields.String(description='Text of the review'),
     'rating': fields.Integer(description='Rating of the place (1-5)'),
-    'user_id': fields.String(description='ID of the user')
+    'user_id': fields.String(description='ID of the user'),
+    'user_name': fields.String(description='Name of the reviewer')
 })
 
-# owner_id is intentionally absent here: ownership is derived from
-# the JWT identity in PlaceList.post(), not accepted from the client,
-# so it must not be a required (or even accepted) input field.
 place_model = api.model('Place', {
     'title': fields.String(
         required=True, description='Title of the place'
@@ -41,11 +38,13 @@ place_model = api.model('Place', {
     ),
     'owner': fields.Nested(user_model, description='Owner of the place'),
     'amenities': fields.List(
-        fields.Integer, required=False,
+        fields.Integer,
+        required=False,
         description="List of amenities ID's"
     ),
     'reviews': fields.List(
-        fields.Nested(review_model), description='List of reviews'
+        fields.Nested(review_model),
+        description='List of reviews'
     ),
 })
 
@@ -56,7 +55,9 @@ place_update_model = api.model('PlaceUpdate', {
     'description': fields.String(
         required=False, description='Description of the place'
     ),
-    'price': fields.Float(required=False, description='Price per night'),
+    'price': fields.Float(
+        required=False, description='Price per night'
+    ),
     'latitude': fields.Float(
         required=False, description='Latitude of the place'
     ),
@@ -64,10 +65,12 @@ place_update_model = api.model('PlaceUpdate', {
         required=False, description='Longitude of the place'
     ),
     'amenities': fields.List(
-        fields.Integer, required=False,
+        fields.Integer,
+        required=False,
         description="List of amenities ID's"
     ),
 })
+
 
 def place_summary(place):
     return {
@@ -78,6 +81,7 @@ def place_summary(place):
         'latitude': place.latitude,
         'longitude': place.longitude,
     }
+
 
 def place_created(place):
     return {
@@ -92,21 +96,11 @@ def place_created(place):
 
 
 def serialize_place(place):
-    """Build the full place representation for a single-place GET.
-
-    place.owner/place.reviews are same-request-only convenience
-    attributes (no db.ForeignKey/relationship() yet -- that's the
-    next task), so a place fetched fresh in a later request won't
-    have them. owner and reviews are instead looked up fresh through
-    the facade by the persisted owner_id/place.id; amenities has no
-    persisted association yet at all, so it's read from the
-    in-memory attribute (only accurate within the request that
-    created/updated it) until the relationships task adds the join
-    table.
-    """
+    """Build the complete information returned for one place."""
     data = place.to_dict()
 
     owner = facade.get_user(place.owner_id)
+
     data['owner'] = {
         'id': owner.id,
         'first_name': owner.first_name,
@@ -116,21 +110,35 @@ def serialize_place(place):
 
     data['amenities'] = [
         {
-            'id': a.id,
-            'name': a.name
+            'id': amenity.id,
+            'name': amenity.name
         }
-        for a in getattr(place, 'amenities', [])
+        for amenity in getattr(place, 'amenities', [])
     ]
 
-    data['reviews'] = [
-        {
-            'id': r.id,
-            'text': r.text,
-            'rating': r.rating,
-            'user_id': r.user_id,
-        }
-        for r in facade.get_reviews_by_place(place.id)
-    ]
+    reviews = []
+
+    for review in facade.get_reviews_by_place(place.id):
+        reviewer = facade.get_user(review.user_id)
+
+        if reviewer:
+            user_name = (
+                f"{reviewer.first_name} {reviewer.last_name}"
+            )
+        else:
+            user_name = "Anonymous user"
+
+        reviews.append(
+            {
+                'id': review.id,
+                'text': review.text,
+                'rating': review.rating,
+                'user_id': review.user_id,
+                'user_name': user_name,
+            }
+        )
+
+    data['reviews'] = reviews
 
     return data
 
@@ -143,8 +151,7 @@ class PlaceList(Resource):
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new place"""
-
+        """Register a new place."""
         current_user = get_jwt_identity()
 
         data = api.payload
@@ -152,18 +159,17 @@ class PlaceList(Resource):
 
         try:
             new_place = facade.create_place(data)
-        except (ValueError, TypeError) as e:
-            return {'error': str(e)}, 400
+        except (ValueError, TypeError) as error:
+            return {'error': str(error)}, 400
 
         return place_created(new_place), 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve a list of all places"""
-
+        """Retrieve a list of all places."""
         places = facade.get_all_places()
 
-        return [place_summary(p) for p in places], 200
+        return [place_summary(place) for place in places], 200
 
 
 @api.route('/<int:place_id>')
@@ -172,8 +178,7 @@ class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
-
+        """Get place details by ID."""
         place = facade.get_place(place_id)
 
         if not place:
@@ -187,8 +192,7 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information"""
-
+        """Update a place's information."""
         place = facade.get_place(place_id)
 
         if not place:
@@ -202,8 +206,8 @@ class PlaceResource(Resource):
 
         try:
             facade.update_place(place_id, api.payload)
-        except (ValueError, TypeError) as e:
-            return {'error': str(e)}, 400
+        except (ValueError, TypeError) as error:
+            return {'error': str(error)}, 400
 
         return {'message': 'Place updated successfully'}, 200
 
@@ -214,8 +218,7 @@ class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get all reviews for a specific place"""
-
+        """Get all reviews for a specific place."""
         place = facade.get_place(place_id)
 
         if not place:
@@ -225,9 +228,10 @@ class PlaceReviewList(Resource):
 
         return [
             {
-                'id': r.id,
-                'text': r.text,
-                'rating': r.rating
+                'id': review.id,
+                'text': review.text,
+                'rating': review.rating,
+                'user_id': review.user_id,
             }
-            for r in reviews
+            for review in reviews
         ], 200
