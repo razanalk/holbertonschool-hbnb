@@ -368,7 +368,7 @@ async function submitReview(token, placeId, reviewText, rating) {
     body: JSON.stringify({
       text: reviewText,
       rating: Number(rating),
-      place_id: placeId
+      place_id: Number(placeId)
     })
   });
 
