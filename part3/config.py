@@ -12,7 +12,8 @@ class Config:
     # via env vars for anything resembling a real deployment.
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@hbnb.io")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin1234")
-
+    DEMO_USER_EMAIL = os.getenv("DEMO_USER_EMAIL", "user@hbnb.io")
+    DEMO_USER_PASSWORD = os.getenv("DEMO_USER_PASSWORD", "user1234")
 
 class DevelopmentConfig(Config):
     DEBUG = True

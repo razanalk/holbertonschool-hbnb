@@ -41,6 +41,21 @@ def seed_admin(app):
         is_admin=True,
     )
 
+def seed_demo_user(app):
+    """Ensure a normal demo user exists."""
+    email = app.config["DEMO_USER_EMAIL"]
+
+    if facade.get_user_by_email(email):
+        return
+
+    facade.create_user(
+        {
+            "first_name": "Demo",
+            "last_name": "User",
+            "email": email,
+            "password": app.config["DEMO_USER_PASSWORD"],
+        }
+    )
 
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
@@ -72,5 +87,5 @@ def create_app(config_class=DevelopmentConfig):
     with app.app_context():
         db.create_all()
         seed_admin(app)
-
+        seed_demo_user(app)
     return app
