@@ -425,6 +425,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       reviewForm.reset();
+
+	setTimeout(() => {
+	   window.location.href = `place.html?id=${placeId}`;
+	}, 1500);
+
     } catch (error) {
       console.error("Review submission error:", error);
 
