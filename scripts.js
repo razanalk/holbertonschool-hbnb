@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  `${window.location.protocol}//${window.location.host.replace("web-80-", "web-5000-")}/api/v1`;
+const API_BASE_URL = window.location.hostname.endsWith("github.io")
+  ? "https://hbnb-api-razan.onrender.com/api/v1"
+  : `${window.location.protocol}//${window.location.host.replace("web-80-", "web-5000-")}/api/v1`;
 
 /* =========================
    Shared authentication code
